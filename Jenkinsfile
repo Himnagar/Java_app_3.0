@@ -64,7 +64,7 @@ pipeline{
                }
             }
        }
-        stage('Maven Build : maven'){
+       stage('Maven Build : maven'){
          when { expression {  params.action == 'create' } }
             steps{
                script{
@@ -73,6 +73,29 @@ pipeline{
                }
             }
         }
+		stage('Build Artifact : Jfrog'){
+         when { expression {  params.action == 'create' } }
+            steps{
+               script {
+                    t
+                    def uploadSpec = """{
+                        "files": [
+                            {
+                                "pattern": "target/*.jar",
+                                "target": "example-repo-local/"
+                            }
+                        ]
+                    }"""
+
+                    
+                    rtUpload(
+                        serverId: 'artifactory-server',
+                        spec: uploadSpec
+                    )
+                }
+            }
+        }
+		
         stage('Docker Image Build'){
          when { expression {  params.action == 'create' } }
             steps{
